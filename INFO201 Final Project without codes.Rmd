@@ -23,7 +23,20 @@ Xiangcheng Ji: My research question is concentrated on assessing how driver age,
 
 It is imperative to note that our collective research endeavors are bolstered by the utilization of two comprehensive datasets, namely "accidents.csv" and "person.csv". These datasets, meticulously curated and sourced from the esteemed United States Department of Transportation, serve as invaluable repositories of authentic and reliable information, making them a cornerstone for our research initiatives. Furthermore, the user-friendly interface of the Department's website (<https://www.nhtsa.gov/file-downloads?p=nhtsa%2Fdownloads%2FCRSS%2F2021%2F>) ensures seamless accessibility, empowering our group members to navigate and extract pertinent information with utmost efficiency, thereby facilitating a rigorous and comprehensive analysis of the factors contributing to car accidents. The dataset we will use consists of the initial CRSS file released in 2021, subsequently revised, and with the addition of the most recent data available as of March 4, 2023 regarding all aspects of crashes to provide a comprehensive and up-to-date basis for our research analyses, in which all drivers in the U.S. are the population and those who have been involved in a crash are the sample. In both data, there is some information about individual observers in the factors we want to study that is missing or not reported, and we need to talk about excluding this missing information first. Following is the research conducted by each member of our team, delving into the impact of a specific factor on traffic accidents. Each study comprehensively addresses key factors, including the study's scope, specific target audience, and other pertinent details.
 
-After using `inner_join()` function to merge two datasets of "accidents_data" and "person_data" by the key variable "MONTH", we ended up with a database specific to the factors related to car accidents that our group was going to study, and it's called "merge_datasets". We use `inner_join()` to deal with two datasets because we want to return rows in both data frames without additional NA values created by the join. In the final dataset, there are 4,800 rows which means we have 4,800 observations, and 9 columns which means 9 factors of a traffic accident . The relevant variables that our group wanted to study the gender and age of the driver at the wheel in a car accident, whether or not the driver was drunk, and whether or not they were injured after the accident. The time of day when the crash occurred, the location and the weather conditions at the time. They are coded as "TYP_INTNAME", "HOUR", "WEATHR_IMNAME", "MAX_SEVNAME", "ALCHL_IMNAME", "INJ_SEVNAME", "AGE_IM", and "SEXNAME" in the final dataset. Inside the dataset, there are missing values or unknown values in the relevant variables. After using `unique()` function and `sum()`, we found that total number of missing values in the final dataset is 1160.
+After using `inner_join()` function to merge two datasets of "accidents_data" and "person_data" by the key variable "CASENUM", we ended up with a database specific to the factors related to car accidents that our group was going to study, and it's called "merge_datasets". We use `inner_join()` to deal with two datasets because we want to return rows in both data frames without additional NA values created by the join. In the final dataset, there are 17,237 rows which means we have 17,237 observations, and 11 columns which means 11 factors of a traffic accident. The relevant variables that our group chose are:
+1. "TYP_INTNAME": Location of the accident (e.g. intersection)
+2. "HOUR": Time of the accident
+3. "WEATHR_IMNAME": Weather conditions at the time of the accident (e.g Clear / Cloudy)
+4. "MAX_SEVNAME": Status of injuries (e.g Suspected Minor Injury)
+5. "ALCHL_IMNAME": Whether or not the driver was drunk (e.g No Alcohol Involved)
+6. "INJ_SEVNAME": Status of injuries (e.g No Apparent Injury)
+7. "AGE_IM": Age of drivers
+8. "SEXNAME": Sex of drivers
+9. "MONTH.x": Month in accidents dataset.
+10. "MONTH.y": Month in person dataset.
+11. "CASENUM": Case number of accidents.
+
+Inside the dataset, there are missing values or unknown values in the relevant variables. After using `unique()` function and `sum()`, we found that total number of missing values in the final dataset is 6614.
 
 ```{r}
 knitr::opts_chunk$set(echo = FALSE)
@@ -35,30 +48,28 @@ library(tidyverse)
 ```
 
 
-Codes comments: The code reads the dataset and then selects specific columns that we are interested in, groups the data by month, and then selects 20 observations randomly from each month to make sure that each observation is unique.
+Codes comments: The code reads the dataset and then selects specific columns that we are interested in, groups the data by month.
 
 ```{r}
-accidents_data <- read_delim("Data/accident.csv")
-set.seed(500) 
+accidents_data <- read_delim("/Users/dongshuxin/Desktop/4th Quarter/INFO201-Final-Project---SDX/Data/accident.csv")
 accidents <- accidents_data %>%
-  select(TYP_INTNAME, HOUR, WEATHR_IMNAME, MAX_SEVNAME, ALCHL_IMNAME, MONTH) %>% 
-  group_by(MONTH) %>% 
-  sample_n(20, replace = FALSE)            
+  filter(REGIONNAME == "Northeast (PA, NJ, NY, NH, VT, RI, MA, ME, CT)") %>% 
+  select(TYP_INTNAME, HOUR, WEATHR_IMNAME, MAX_SEVNAME, ALCHL_IMNAME, MONTH, CASENUM) %>% 
+  group_by(MONTH)
 ```
 
 ```{r}
-person_data <- read_delim("Data/person.csv")
-set.seed(500) 
+person_data <- read_delim("/Users/dongshuxin/Desktop/4th Quarter/INFO201-Final-Project---SDX/Data/person.csv")
 person <-person_data %>% 
-  select(INJ_SEVNAME, AGE_IM, SEXNAME, MONTH) %>% 
-  group_by(MONTH) %>% 
-  sample_n(20, replace = FALSE) 
+  filter(REGIONNAME == "Northeast (PA, NJ, NY, NH, VT, RI, MA, ME, CT)") %>% 
+  select(INJ_SEVNAME, AGE_IM, SEXNAME,CASENUM, MONTH) %>%  
+  group_by(MONTH)
 ```
 
 
-Codes comments: Use `inner_join()` function to merge two datasets of "accidents_data" and "person_data" by the key variable "MONTH", and it's called "merge_datasets".
+Codes comments: Use `inner_join()` function to merge two datasets of "accidents_data" and "person_data" by the key variable "CASENUM", and it's called "merge_datasets".
 ```{r}
-merge_datasets <- inner_join(accidents, person, by = "MONTH" )
+merge_datasets <- inner_join(accidents, person, by = "CASENUM")
 merge_datasets %>% 
   nrow()
 merge_datasets %>% 
@@ -79,7 +90,7 @@ missing_values_TYP_INTNAME<- sum(merge_datasets$TYP_INTNAME == "Not Reported")
 missing_values_TYP_INTNAME
 ```
 
-`There are 440 missing values in the column of TYP_INTNAME.`
+`There are 3849 missing values in the column of TYP_INTNAME.`
 
 ### How many missing values in the column "HOUR" :
 
@@ -93,7 +104,7 @@ missing_values_HOUR <- sum(merge_datasets$HOUR > 24)
 missing_values_HOUR
 ```
 
-`There are 20 missing values in the column of HOUR.`
+`There are 93 missing values in the column of HOUR.`
 
 ### How many missing values in the column "WEATHR_IMNAME" :
 
@@ -116,7 +127,7 @@ missing_values_MAX_SEVNAME<- sum(merge_datasets$MAX_SEVNAME == "Unknown/Not Repo
 missing_values_MAX_SEVNAME
 ```
 
-`There are 80 missing values in the column of MAX_SEVNAME.`
+`There are 112 missing values in the column of MAX_SEVNAME.`
 
 ### How many missing values in the column "ALCHL_IMNAME" :
 
@@ -127,14 +138,6 @@ unique_values_ALCHL_IMNAME
 
 `There are 0 missing values in the column of ALCHL_IMNAME.`
 
-### How many missing values in the column "MONTH" :
-
-```{r}
-unique_values_MONTH <- unique(merge_datasets$MONTH)
-unique_values_MONTH
-```
-
-`There are 0 missing values in the column of MONTH.`
 
 ### How many missing values in the column "INJ_SEVNAME":
 
@@ -148,7 +151,7 @@ missing_values_INJ_SEVNAME <- sum(merge_datasets$INJ_SEVNAME == "Unknown/Not Rep
 missing_values_INJ_SEVNAME
 ```
 
-`There are 180 missing values in the column of INJ_SEVNAME.`
+`There are 587 missing values in the column of INJ_SEVNAME.`
 
 ### How many missing values in the column "AGE_IM" :
 
@@ -162,7 +165,7 @@ missing_values_AGE_IM <- sum(merge_datasets$AGE_IM < 16)
 missing_values_AGE_IM
 ```
 
-`There are 220 missing values in the column of AGE_IM .`
+`There are 1228 missing values in the column of AGE_IM .`
 
 ### How many missing values in the column "SEXNAME" :
 
@@ -176,7 +179,7 @@ missing_values_SEXNAME <- sum(merge_datasets$SEXNAME == "Reported as Unknown" | 
 missing_values_SEXNAME
 ```
 
-`There are 220 missing values in the column of SEXNAME.`
+`There are 745 missing values in the column of SEXNAME.`
 
 ### Total number of missing values:
 
@@ -185,7 +188,7 @@ total_missing_values <- sum(missing_values_TYP_INTNAME,missing_values_HOUR,missi
 total_missing_values
 ```
 
-`Total number of missing values in the final dataset is 1160.`
+`Total number of missing values in the final dataset is 6614.`
 
 
 ## Part I (Shuxin Dong): Age
@@ -215,7 +218,7 @@ percentage_younger_total
 
 ## Figure 0: Analysis
 
-In the database, there were a total of 4,800 traffic accidents in all age groups. After filtering the database, 1020 crashes were caused by drivers younger than 25. Now we can clearly know that drivers under the age of 25 account for about 21.25 percent of all people involved in traffic accidents. Insurance Institute for Highway Safety argues that in the United States, teenagers drive less than all but the oldest people. We can default to the fact that the under 25 age group has fewer individuals with both a driver's license and a necessity to drive compared to those over 25. Therefore, it suggests that this group is no less likely to be involved in traffic accidents. This also reaffirms the validity of the young driver fee charged by most car rental companies.
+In the database, there were a total of 17,237 traffic accidents in all age groups. After filtering the database, 3,437 crashes were caused by drivers younger than 25. Now we can clearly know that drivers under the age of 25 account for about 19.93966 percent of all people involved in traffic accidents. Insurance Institute for Highway Safety argues that in the United States, teenagers drive less than all but the oldest people. We can default to the fact that the under 25 age group has fewer individuals with both a driver's license and a necessity to drive compared to those over 25. Therefore, it suggests that this group is no less likely to be involved in traffic accidents. This also reaffirms the validity of the young driver fee charged by most car rental companies.
 
 ### Figure 1: Is it reasonable for car rental companies to charge extra young driver fees for young drivers under 25 years old when renting a car?
 
@@ -245,7 +248,7 @@ age_plot
 
 ### Figure 1: Analysis
 
-From the bar chart, it is clear that the number of accidents is higher in the 15-25 age group and in the 26-35 age group. But what we can default in the United States, teenagers drive less than all but the oldest people from website of Insurance Institute for Highway Safety. It is understandable because most of the 15-25 age group are in school and don't have the ability to buy a car that the 25-35 group has. Therefore the probability of car accidents for 15-25 year old drivers is very high actually. Now, we could prove that it makes sense for rental car companies to charge young driver fee for drivers in this group.
+From the bar chart, it is clear that the height of bar for age group 15-25 is the highest. Also, what we can default in the United States, teenagers drive less than all but the oldest people from website of Insurance Institute for Highway Safety. It is understandable because most of the 15-25 age group are in school and don't have the ability to buy a car that other age groups have. Therefore the probability of car accidents for 15-25 year old drivers is very high actually. Now, we could prove that it makes sense for rental car companies to charge young driver fee for drivers in this group.
 
 ## Part II (Shuxin Dong) : Sex
 
@@ -275,6 +278,7 @@ female_accidents
 ```
 
 Codes comments: Calculate female drivers as a percentage of the total number of accidents, and store it into percentage_female_total.
+
 ```{r}
 percentage_female_total <- (female_accidents / total_accidents) * 100
 percentage_female_total
@@ -294,7 +298,7 @@ missing_gender_percentage
 
 ### Figure 0: Analysis
 
-In the databaset, I first filtered the number of male drivers in all the accidents that occurred and what I got was that there were 16,500 accidents that were caused by male driving drivers, which is 55 percent of all the accidents.Secondly, I filtered the number of accidents where the gender of the driver was female, which was 11,850, which is 39.5 percent of all the accidents.So from the male driver percentage of all accidents and female percentage of all accidents, we can see that the probability of a male being involved in a traffic accident is actually greater than the probability of a female being involved in a traffic accident. This would disprove the stereotype that female drivers do not drive as well as male drivers.
+In the databaset, I first filtered the number of male drivers in all the accidents that occurred and what I got was that there were 8744 accidents that were caused by male driving drivers, which is 50.72808 percent of all the accidents. Secondly, I filtered the number of accidents where the gender of the driver was female, which was 6568, which is 38.10408 percent of all the accidents.So from the male driver percentage of all accidents and female percentage of all accidents, we can see that the probability of a male being involved in a traffic accident is actually greater than the probability of a female being involved in a traffic accident. This would disprove the stereotype that female drivers do not drive as well as male drivers.
 
 ### Figure 1: Are female drivers more likely to be involved in accidents than male drivers? Is this a stereotype?
 
@@ -349,7 +353,7 @@ ggplot(age_sex_data, aes(x = age_group, y = Percentage, fill = SEXNAME)) +
 
 ### Figure 2: Analysis
 
-As we can see from the bar chart above, of the six age groups, women between the ages of 36-45 are significantly more likely to be involved in a car accident than men. This may explain why people have such a stereotypical image. It also reflects the fact that people don't always see the whole picture.Therefore, we need to analyze the problem through the data, not make judgments about things by what is happening in front of us.
+As we can see from the bar chart above, in all six age groups, female drivers accounted for a smaller proportion of crashes than male drivers. This reflects the fact that in everyday life, people analyze problems by what happens or what they see in front of them, but perhaps this is not true. Therefore we need to use data to analyze the problem and find the answer more objectively and intelligently.
 
 # My analysis and limitations of the dataset:
 
@@ -370,11 +374,12 @@ How to avoid traffic accidents as much as possible:
 
 ## Figure 1: Display how many crashes involving alcohol vs. not involving alcohol in the dataset
 
-Codes comments: I grouped the data by MONTH and ALCHL_IMNAME and then performed the summarize(count = n()) function which returns a summarized dataset with columns MONTH, ALCHL_IMNAME, and count representing the number of vehicle crashes for each combination of month and alcohol involvement.the grouping and summarizing steps are used to organize and aggregate your data for better visualization and analysis. NOTE: the summary table (num_crashes_alcohol) provides an overall count of crashes for each level of alcohol involvement.
+Codes comments: I grouped the data by ALCHL_IMNAME and then performed the summarize(count = n()) function which returns a summarized dataset with columns ALCHL_IMNAME, and count representing the number of vehicle crashes for each combination of month and alcohol involvement.the grouping and summarizing steps are used to organize and aggregate your data for better visualization and analysis. NOTE: the summary table (num_crashes_alcohol) provides an overall count of crashes for each level of alcohol involvement.
+
 ```{r}
 barGraph_alc_use <- merge_datasets %>%
-  select(ALCHL_IMNAME, MONTH) %>%
-  group_by(MONTH, ALCHL_IMNAME) %>%
+  select(ALCHL_IMNAME) %>%
+  group_by(ALCHL_IMNAME) %>%
   summarize(count = n()) %>%
   ggplot(aes(x = ALCHL_IMNAME, y = count, fill = ALCHL_IMNAME)) +
   geom_col() +
@@ -395,7 +400,7 @@ num_crashes_alcohol
 
 # Figure 1. Analysis
 
-I first wanted to compare the volume of vehicle crashes due to alcohol versus crashes with no alcohol involved (I only selected the variables MONTH and ALCHL_IMANME for this reason). A bar graph was perfect for displaying this relationship. This bar graph shows that the number of vehicle crashes that did not involve the use of alcohol is greater than the number of crashes that did. Out of the 4,800 total crashes we are analyzing, only 380 of them involved the use of alcohol compared to the 4,420 that didn't. This stark difference proves that crashes while drinking while driving is not a common occurance, and therefore, the policies state and federal governments have put in place are working to deter this dangerous behaviour. However, the mere fact that hundreds of crashes involving the use of alcohol still exist is still concerning. We should continue working toward mitigating this issue to ensure the safety of our roads for everyone. The goal should be to reduce the number of vehicle crashes due to alcohol to zero.
+I first wanted to compare the volume of vehicle crashes due to alcohol versus crashes with no alcohol involved (I only selected the variables MONTH and ALCHL_IMANME for this reason). A bar graph was perfect for displaying this relationship. This bar graph shows that the number of vehicle crashes that did not involve the use of alcohol is greater than the number of crashes that did. Out of the 17,237 total crashes we are analyzing, only 1,533	 of them involved the use of alcohol compared to the 14476	that didn't. This stark difference proves that crashes while drinking while driving is not a common occurance, and therefore, the policies state and federal governments have put in place are working to deter this dangerous behaviour. However, the mere fact that hundreds of crashes involving the use of alcohol still exist is still concerning. We should continue working toward mitigating this issue to ensure the safety of our roads for everyone. The goal should be to reduce the number of vehicle crashes due to alcohol to zero.
 
 ## Figure 2: Display crashes involving alcohol use vs. month to determine if the time of year affects drunk driving
 
@@ -404,9 +409,9 @@ Codes comments: The R code creates a grouped bar graph (barGraph_alc_use_sex) to
 custom_colors <- c(Female = "#ff69b4", Male = "#1f78b4")
 
 barGraph_alc_use_sex <- merge_datasets %>%
-  select(ALCHL_IMNAME, MONTH, SEXNAME) %>%
+  select(ALCHL_IMNAME, SEXNAME) %>%
   filter(!SEXNAME == "Not Reported" & !SEXNAME == "Reported as Unknown") %>%
-  group_by(MONTH, ALCHL_IMNAME, SEXNAME) %>%
+  group_by(ALCHL_IMNAME, SEXNAME) %>%
   summarize(count = n()) %>%
   ggplot(aes(x = ALCHL_IMNAME, y = count, fill = SEXNAME)) +
   geom_col(position = "dodge", position_fill = "dodge") +
@@ -456,9 +461,10 @@ barGraph_alc_injury
 
 # Figure 3. Analysis
 
-My research question revolves around to what extent alcohol plays a role, if any, in the number and severity of accidents on roads. Based on this bar graph, out of the 380 total vehicle crashes involving alcohol, the majority of them resulted in a non-fatal injury. In fact, 36 people suffered from a minor injury, while only 12 people suffered from a serious injury. It can be concluded that alcohol use does not have an astronomical affect on the severity of the injury. However, even though the data isn't exponential, the 125 total people who were injured in a vehicle crash still hold weight - Even if the majority of these injuries are categorized as minor, any injury resulting from impaired driving raises critical questions about road safety and the potential for more severe consequences. It's essential to consider not only the immediate impact of alcohol-related accidents but also the broader implications for public health and safety. The 380 total crashes involving alcohol highlight a persistent issue that requires attention and intervention. Road safety measures, such as stricter enforcement of alcohol-related driving laws, public awareness campaigns, and educational programs, may play a crucial role in reducing the overall number of accidents.
+My research question revolves around to what extent alcohol plays a role, if any, in the number and severity of accidents on roads. Based on this bar graph, out of the 1533 total vehicle crashes involving alcohol, the majority of them resulted in a non-fatal injury. In fact, 132 people suffered from a minor injury, while only 136 people suffered from a serious injury. It can be concluded that alcohol use does not have an astronomical affect on the severity of the injury. However, even though the data isn't exponential, the 570 total people who were injured or possible injuried in a vehicle crash still hold weight - Even if the majority of these injuries are categorized as minor, any injury resulting from impaired driving raises critical questions about road safety and the potential for more severe consequences. It's essential to consider not only the immediate impact of alcohol-related accidents but also the broader implications for public health and safety. The 380 total crashes involving alcohol highlight a persistent issue that requires attention and intervention. Road safety measures, such as stricter enforcement of alcohol-related driving laws, public awareness campaigns, and educational programs, may play a crucial role in reducing the overall number of accidents.
 
 Additionally, the focus should extend beyond the severity of injuries to other factors like property damage, emotional distress, and the strain on emergency services. Understanding the comprehensive impact of alcohol-related accidents can inform policy decisions aimed at creating safer road environments.
+
 
 # Limitations to my analysis and our dataset:
 

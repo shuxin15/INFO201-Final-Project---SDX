@@ -37,27 +37,25 @@ library(tidyverse)
 Codes comments: The code reads the dataset and then selects specific columns that we are interested in, groups the data by month, and then selects 20 observations randomly from each month to make sure that each observation is unique.
 
 ```{r}
-accidents_data <- read_delim("/Users/dongshuxin/Desktop/Data/accident.csv")
-set.seed(500) 
+accidents_data <- read_delim("/Users/dongshuxin/Desktop/4th Quarter/INFO201-Final-Project---SDX/Data/accident.csv")
 accidents <- accidents_data %>%
-  select(TYP_INTNAME, HOUR, WEATHR_IMNAME, MAX_SEVNAME, ALCHL_IMNAME, MONTH) %>% 
-  group_by(MONTH) %>% 
-  sample_n(20, replace = FALSE)            
+  filter(REGIONNAME == "Northeast (PA, NJ, NY, NH, VT, RI, MA, ME, CT)") %>% 
+  select(TYP_INTNAME, HOUR, WEATHR_IMNAME, MAX_SEVNAME, ALCHL_IMNAME, MONTH, CASENUM) %>% 
+  group_by(MONTH)
 ```
 
 ```{r}
-person_data <- read_delim("/Users/dongshuxin/Desktop/Data/person.csv")
-set.seed(500) 
+person_data <- read_delim("/Users/dongshuxin/Desktop/4th Quarter/INFO201-Final-Project---SDX/Data/person.csv")
 person <-person_data %>% 
-  select(INJ_SEVNAME, AGE_IM, SEXNAME, MONTH) %>% 
-  group_by(MONTH) %>% 
-  sample_n(20, replace = FALSE) 
+  filter(REGIONNAME == "Northeast (PA, NJ, NY, NH, VT, RI, MA, ME, CT)") %>% 
+  select(INJ_SEVNAME, AGE_IM, SEXNAME, MONTH,CASENUM) %>% 
+  group_by(MONTH)
 ```
 
 
 Codes comments: Use `inner_join()` function to merge two datasets of "accidents_data" and "person_data" by the key variable "MONTH", and it's called "merge_datasets".
 ```{r}
-merge_datasets <- inner_join(accidents, person, by = "MONTH" )
+merge_datasets <- inner_join(accidents, person, by = "CASENUM")
 merge_datasets %>% 
   nrow()
 merge_datasets %>% 

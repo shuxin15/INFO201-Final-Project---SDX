@@ -1,0 +1,477 @@
+---
+title: "Final Project"
+author: "Sehrish Daud, Shuxin Dong, Xiangcheng Ji"
+date: "2023-12-01"
+output: html_document
+---
+
+# Stories behind traffic accidents
+
+## Introduction
+
+Traffic accidents are a widespread and concerning phenomenon that occurs every day globally, leaving behind a series of devastating injuries and, sadly, even fatalities. The impact extends beyond individuals to entire families. Given the profound consequences of these accidents on society, they have long been a pressing concern for global communities. Our team members unanimously recognize the urgency of addressing this issue, and as such, we are interested in exploring the stories behind these traffic accidents occurring in the United States.
+
+There have been many news stories about car accidents on cbs news, for example on August 22, 2023, the first day of elementary school, a school bus carrying children crashed killing one child and injuring the remaining 23 children. On January 12, 2023, just after 6:00 a.m., a semi-truck driver caused a six-vehicle crash in Arizona that killed five people, and was on the phone and actively using "TikTok" before the crash. I believe that everyone has heard or seen news reports about car accidents, and some unfortunate individuals have even experienced accidents themselves. So, I'd like to ask, do you know what common factors often lead to the occurrence of car accidents? I believe the first things that come to mind are drunk driving and speeding. Stopping speeding vehicles is one of the most important daily tasks for the police. Besides these two factors, there may be other factors, or perhaps it's just an isolated incident or coincidence that we cannot be certain about. Therefore, our group hopes to explore, through the analysis of real data, which factors are the main culprits behind car accidents and which factors are misconceptions formed by our stereotypes but are not actually the case.
+
+Each member of our group chose one or two factors associated with car accidents to study.
+
+Shuxin Dong: My particular interest lies in discerning the age and gender of the drivers implicated in the crashes. The inquiry I aim to explore revolves around the prevalence of accidents among individuals under the age of 25 and whether there exists a verifiable correlation. Additionally, I am intrigued by the prevailing belief that female drivers are more prone to accidents compared to their male counterparts---is this a substantiated fact or a perpetuated stereotype? These questions arise, notably, due to the commonplace practice among most car rental companies to levy additional young driver fee on drivers under the age of 25. My motivation is to ascertain the validity of such surcharges and whether they are genuinely warranted based on statistical evidence. Simultaneously, the broader societal perception that female drivers may be less adept behind the wheel than their male counterparts prompts me to delve into the empirical foundation of this notion. I seek to ascertain whether this perception aligns with statistical realities or if it remains a persistent stereotype ingrained in public consciousness.
+
+Sehrish:Unraveling the complex web of variables in this data set can provide a holistic understanding of the dynamics involved in alcohol-related incidents. This multifaceted analysis is crucial for developing comprehensive strategies. Therefore, I was interested in analyzing how the use of alcohol affects vehicle crashes. In particular, I wanted to determine the connectedness between variables such as alcohol involvement, sex, and injury severity. Are more females involved in alcohol-related indicidents than males? Do crashes involving alcohol result in more severe injuries? The potential correlation between alcohol involvement and injury severity is critical for public safety. If there's a strong connection, it emphasizes the urgent need for measures to prevent alcohol-impaired driving. This information can guide policy decisions, law enforcement practices, and public awareness campaigns aimed at reducing the severity of injuries in road accidents. This report goes beyond just presenting statistics; it delves into the intricate relationships between alcohol involvement, gender, and injury severity in vehicle crashes. By addressing these questions, the report aims to provide actionable insights for policymakers, law enforcement, healthcare professionals, and the general public. Understanding the nuances of alcohol-related incidents is crucial for developing targeted interventions, promoting public safety, and ultimately saving lives on the road.
+
+Xiangcheng Ji: My research question is concentrated on assessing how driver age, weather conditions and time period, affect the likelihood and severity of traffic accidents. This topic is meaningful and interesting because these factors are fundamental aspects of understanding and improving road safety. Investigating the correlation between these factors may uncover some patterns that can be analyzed and give us unexpected findings. For instance, do younger drivers have higher accident rates at night due to their lifestyle? Different weather conditions, such as rain and snow, may also affect drivers differently, potentially leading to varying severities of injury. Utilizing data from both datasets, the accident.csv and person.csv datasets that include variables like HOUR, MAX_SEVNAME, AGE_IM, and WEATHER_IMNAME will help in this analysis. The findings of this research aim to yield improved safety guidelines and traffic regulations, benefiting both drivers and policymakers.
+
+It is imperative to note that our collective research endeavors are bolstered by the utilization of two comprehensive datasets, namely "accidents.csv" and "person.csv". These datasets, meticulously curated and sourced from the esteemed United States Department of Transportation, serve as invaluable repositories of authentic and reliable information, making them a cornerstone for our research initiatives. Furthermore, the user-friendly interface of the Department's website (<https://www.nhtsa.gov/file-downloads?p=nhtsa%2Fdownloads%2FCRSS%2F2021%2F>) ensures seamless accessibility, empowering our group members to navigate and extract pertinent information with utmost efficiency, thereby facilitating a rigorous and comprehensive analysis of the factors contributing to car accidents. The dataset we will use consists of the initial CRSS file released in 2021, subsequently revised, and with the addition of the most recent data available as of March 4, 2023 regarding all aspects of crashes to provide a comprehensive and up-to-date basis for our research analyses, in which all drivers in the U.S. are the population and those who have been involved in a crash are the sample. In both data, there is some information about individual observers in the factors we want to study that is missing or not reported, and we need to talk about excluding this missing information first. Following is the research conducted by each member of our team, delving into the impact of a specific factor on traffic accidents. Each study comprehensively addresses key factors, including the study's scope, specific target audience, and other pertinent details.
+
+After using `inner_join()` function to merge two datasets of "accidents_data" and "person_data" by the key variable "MONTH", we ended up with a database specific to the factors related to car accidents that our group was going to study, and it's called "merge_datasets". We use `inner_join()` to deal with two datasets because we want to return rows in both data frames without additional NA values created by the join. In the final dataset, there are 4,800 rows which means we have 4,800 observations, and 9 columns which means 9 factors of a traffic accident . The relevant variables that our group wanted to study the gender and age of the driver at the wheel in a car accident, whether or not the driver was drunk, and whether or not they were injured after the accident. The time of day when the crash occurred, the location and the weather conditions at the time. They are coded as "TYP_INTNAME", "HOUR", "WEATHR_IMNAME", "MAX_SEVNAME", "ALCHL_IMNAME", "INJ_SEVNAME", "AGE_IM", and "SEXNAME" in the final dataset. Inside the dataset, there are missing values or unknown values in the relevant variables. After using `unique()` function and `sum()`, we found that total number of missing values in the final dataset is 1160.
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(viridis)
+library(tidyverse)
+```
+
+
+Codes comments: The code reads the dataset and then selects specific columns that we are interested in, groups the data by month, and then selects 20 observations randomly from each month to make sure that each observation is unique.
+
+```{r}
+accidents_data <- read_delim("Data/accident.csv")
+set.seed(500) 
+accidents <- accidents_data %>%
+  select(TYP_INTNAME, HOUR, WEATHR_IMNAME, MAX_SEVNAME, ALCHL_IMNAME, MONTH) %>% 
+  group_by(MONTH) %>% 
+  sample_n(20, replace = FALSE)            
+```
+
+```{r}
+person_data <- read_delim("Data/person.csv")
+set.seed(500) 
+person <-person_data %>% 
+  select(INJ_SEVNAME, AGE_IM, SEXNAME, MONTH) %>% 
+  group_by(MONTH) %>% 
+  sample_n(20, replace = FALSE) 
+```
+
+
+Codes comments: Use `inner_join()` function to merge two datasets of "accidents_data" and "person_data" by the key variable "MONTH", and it's called "merge_datasets".
+```{r}
+merge_datasets <- inner_join(accidents, person, by = "MONTH" )
+merge_datasets %>% 
+  nrow()
+merge_datasets %>% 
+  ncol()
+```
+
+## Number of missing values in each column:
+
+### How many missing values in the column "TYP_INTNAME" :
+
+```{r}
+unique_values_TYP_INTNAME <- unique(merge_datasets$TYP_INTNAME)
+unique_values_TYP_INTNAME
+```
+
+```{r}
+missing_values_TYP_INTNAME<- sum(merge_datasets$TYP_INTNAME == "Not Reported")
+missing_values_TYP_INTNAME
+```
+
+`There are 440 missing values in the column of TYP_INTNAME.`
+
+### How many missing values in the column "HOUR" :
+
+```{r}
+unique_values_HOUR <- unique(merge_datasets$HOUR)
+unique_values_HOUR
+```
+
+```{r}
+missing_values_HOUR <- sum(merge_datasets$HOUR > 24)
+missing_values_HOUR
+```
+
+`There are 20 missing values in the column of HOUR.`
+
+### How many missing values in the column "WEATHR_IMNAME" :
+
+```{r}
+unique_values_WEATHR_IMNAME <- unique(merge_datasets$WEATHR_IMNAME)
+unique_values_WEATHR_IMNAME
+```
+
+`There are 0 missing values in the column of WEATHR_IMNAME.`
+
+### How many missing values in the column "MAX_SEVNAME" :
+
+```{r}
+unique_values_MAX_SEVNAME <- unique(merge_datasets$MAX_SEVNAME)
+unique_values_MAX_SEVNAME
+```
+
+```{r}
+missing_values_MAX_SEVNAME<- sum(merge_datasets$MAX_SEVNAME == "Unknown/Not Reported")
+missing_values_MAX_SEVNAME
+```
+
+`There are 80 missing values in the column of MAX_SEVNAME.`
+
+### How many missing values in the column "ALCHL_IMNAME" :
+
+```{r}
+unique_values_ALCHL_IMNAME <- unique(merge_datasets$ALCHL_IMNAME)
+unique_values_ALCHL_IMNAME
+```
+
+`There are 0 missing values in the column of ALCHL_IMNAME.`
+
+### How many missing values in the column "MONTH" :
+
+```{r}
+unique_values_MONTH <- unique(merge_datasets$MONTH)
+unique_values_MONTH
+```
+
+`There are 0 missing values in the column of MONTH.`
+
+### How many missing values in the column "INJ_SEVNAME":
+
+```{r}
+unique_values_INJ_SEVNAME <- unique(merge_datasets$INJ_SEVNAME)
+unique_values_INJ_SEVNAME
+```
+
+```{r}
+missing_values_INJ_SEVNAME <- sum(merge_datasets$INJ_SEVNAME == "Unknown/Not Reported")
+missing_values_INJ_SEVNAME
+```
+
+`There are 180 missing values in the column of INJ_SEVNAME.`
+
+### How many missing values in the column "AGE_IM" :
+
+```{r}
+unique_values_AGE_IM <- unique(merge_datasets$AGE_IM)
+unique_values_AGE_IM
+```
+
+```{r}
+missing_values_AGE_IM <- sum(merge_datasets$AGE_IM < 16)
+missing_values_AGE_IM
+```
+
+`There are 220 missing values in the column of AGE_IM .`
+
+### How many missing values in the column "SEXNAME" :
+
+```{r}
+unique_values_SEXNAME<- unique(merge_datasets$SEXNAME)
+unique_values_SEXNAME
+```
+
+```{r}
+missing_values_SEXNAME <- sum(merge_datasets$SEXNAME == "Reported as Unknown" | merge_datasets$SEXNAME == "Not Reported")
+missing_values_SEXNAME
+```
+
+`There are 220 missing values in the column of SEXNAME.`
+
+### Total number of missing values:
+
+```{r}
+total_missing_values <- sum(missing_values_TYP_INTNAME,missing_values_HOUR,missing_values_MAX_SEVNAME, missing_values_INJ_SEVNAME, missing_values_AGE_IM, missing_values_SEXNAME)
+total_missing_values
+```
+
+`Total number of missing values in the final dataset is 1160.`
+
+
+## Part I (Shuxin Dong): Age
+
+### Figure 0: Is it reasonable for car rental companies to charge extra young driver fees for young drivers under 25 years old when renting a car?
+
+
+Codes comments: Use nrow() function to know the total number of accidents and store it in total_accidents.
+
+```{r}
+total_accidents <- nrow(merge_datasets)
+total_accidents
+```
+Codes comments: Use filter() function to find the number of accidents that caused by drivers whose age is from 16 to 25 years old, and store it in accidents_under_25.
+```{r}
+accidents_under_25 <- merge_datasets %>%
+  filter(AGE_IM < 25 & AGE_IM > 15) %>%
+  nrow()
+accidents_under_25
+```
+
+Codes comments: Use formula to compute the percentage of traffic accidents occurring in the 15-25 age group.
+```{r}
+percentage_younger_total <- (accidents_under_25 / total_accidents) * 100
+percentage_younger_total
+```
+
+## Figure 0: Analysis
+
+In the database, there were a total of 4,800 traffic accidents in all age groups. After filtering the database, 1020 crashes were caused by drivers younger than 25. Now we can clearly know that drivers under the age of 25 account for about 21.25 percent of all people involved in traffic accidents. Insurance Institute for Highway Safety argues that in the United States, teenagers drive less than all but the oldest people. We can default to the fact that the under 25 age group has fewer individuals with both a driver's license and a necessity to drive compared to those over 25. Therefore, it suggests that this group is no less likely to be involved in traffic accidents. This also reaffirms the validity of the young driver fee charged by most car rental companies.
+
+### Figure 1: Is it reasonable for car rental companies to charge extra young driver fees for young drivers under 25 years old when renting a car?
+
+
+Codes comments: I created a new variable called age_group in the merged_datasets to categorize ages into specified groups. I used the cut function to create segments based on the segments provided and assigned labels to each segment.Then I remove rows where the age_group variable is NA. And I use group_by function to calculates the number of accidents happened in each age group by using the summarize function and store them in the accidents_by_age data frame. After that, I create a ggplot object with custom color palette.
+
+```{r}
+merge_datasets$age_group <- cut(merge_datasets$AGE_IM, breaks = c(15, 25, 35, 45, 55, 65, Inf), 
+                                labels = c("15-25", "26-35", "36-45", "46-55", "56-65", "66+"))
+
+merge_datasets <- merge_datasets[!is.na(merge_datasets$age_group), ]
+
+accidents_by_age <- merge_datasets %>%
+  group_by(age_group) %>%
+  summarize(count = n())
+
+age_plot <- ggplot(accidents_by_age, aes(x = age_group, y = count, fill = age_group)) +
+  geom_bar(stat = "identity") + # the height of the bars should be proportional to the values in the data
+  scale_fill_viridis(discrete = TRUE) +  # use the viridis color palette
+  labs(title = "Accidents by Age Group",
+       subtitle = paste("Percentage Involving Individuals Under 25: ", round(percentage_younger_total, 2), "%"),
+       y = "Number of Accidents",
+       x = "Age Group") +
+  theme_minimal()
+age_plot 
+```
+
+### Figure 1: Analysis
+
+From the bar chart, it is clear that the number of accidents is higher in the 15-25 age group and in the 26-35 age group. But what we can default in the United States, teenagers drive less than all but the oldest people from website of Insurance Institute for Highway Safety. It is understandable because most of the 15-25 age group are in school and don't have the ability to buy a car that the 25-35 group has. Therefore the probability of car accidents for 15-25 year old drivers is very high actually. Now, we could prove that it makes sense for rental car companies to charge young driver fee for drivers in this group.
+
+## Part II (Shuxin Dong) : Sex
+
+### Figure 0: Are female drivers more likely to be involved in accidents than male drivers? Is this a stereotype?
+
+
+Codes comments: Use filter function to find the number of accidents caused by male drivers, and store it into male_accidents.
+```{r}
+male_accidents <- merge_datasets %>% 
+  filter(SEXNAME == "Male") %>% 
+  nrow()
+male_accidents  
+```
+
+Codes comments: Calculate male drivers as a percentage of the total number of accidents, and store it into percentage_male_total.
+```{r}
+percentage_male_total <- (male_accidents / total_accidents) * 100
+percentage_male_total
+```
+
+Codes comments: Use filter function to find the number of accidents caused by female drivers, and store it into female_accidents.
+```{r}
+female_accidents <- merge_datasets %>% 
+  filter(SEXNAME == "Female") %>% 
+  nrow()
+female_accidents 
+```
+
+Codes comments: Calculate female drivers as a percentage of the total number of accidents, and store it into percentage_female_total.
+```{r}
+percentage_female_total <- (female_accidents / total_accidents) * 100
+percentage_female_total
+```
+
+Codes comments: Calculate the number of missing values by subtracting female_accidents and male_accidents, and store it into missing_gender_accidents.
+```{r}
+missing_gender_accidents <- total_accidents - female_accidents - male_accidents
+missing_gender_accidents
+```
+
+Codes comments: Calculate missing values as a percentage of the total number of accidents, and store it into missing_gender_percentage.
+```{r}
+missing_gender_percentage <- 100 - percentage_male_total - percentage_female_total
+missing_gender_percentage
+```
+
+### Figure 0: Analysis
+
+In the databaset, I first filtered the number of male drivers in all the accidents that occurred and what I got was that there were 16,500 accidents that were caused by male driving drivers, which is 55 percent of all the accidents.Secondly, I filtered the number of accidents where the gender of the driver was female, which was 11,850, which is 39.5 percent of all the accidents.So from the male driver percentage of all accidents and female percentage of all accidents, we can see that the probability of a male being involved in a traffic accident is actually greater than the probability of a female being involved in a traffic accident. This would disprove the stereotype that female drivers do not drive as well as male drivers.
+
+### Figure 1: Are female drivers more likely to be involved in accidents than male drivers? Is this a stereotype?
+
+
+Codes comments: Create a new data frame called gender_data with three columns: "Gender," "Count," and "Percentage." It contains values of the count and percentage of accidents for each gender category. Then, I use gender_data to draw a bar plot, and adjusts the width of the bars to be 0.5. After that, I convert the plot to a polar coordinate system which change to be a fan chart, and adds text labels to show the percentage on each bar.
+```{r}
+gender_data <- data.frame(
+  Gender = c("Male", "Female", "Missing"),
+  Count = c(male_accidents, female_accidents, missing_gender_accidents),
+  Percentage = c(percentage_male_total, percentage_female_total, missing_gender_percentage)
+)
+
+ggplot(gender_data, aes(x = "", y = Count, fill = Gender)) +
+  geom_bar(stat = "identity", width = 0.5) + 
+  coord_polar(theta = "y") +
+  geom_text(aes(label = sprintf("%.1f%%", Percentage)), position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(values = c("#1F78B4", "#33A02C", "#D9D9D9")) +
+  labs(title = "Accidents by Gender",
+       subtitle = paste("Total Accidents: ", total_accidents),
+       x = NULL,
+       y = NULL) +
+  theme_minimal() +
+  theme(axis.text = element_blank(),
+        axis.title = element_blank(),
+        panel.grid = element_blank())
+```
+
+### Figure 1: Analysis
+
+From the graph above, it is clear that the green-colored portion, or male drivers, account for almost half of all traffic accidents. And the share of the blue-colored part, that is, female drivers in all traffic accidents must be smaller than the green-colored part. Therefore, we can learn that male drivers are more likely to be involved in traffic accidents than female drivers. Now we can conclude that the perception that female drivers are not as good drivers as male drivers or that female drivers are more likely to be involved in accidents is a stereotype.
+
+## Part III (Shuxin Dong): Gender & Age
+
+### Figure 2: Why do people have the stereotype that female drivers are more likely to get into accidents?
+
+Codes comments: Use group_by function to group the data by drivers' age and sex. Then, I calculate the percentage of each group in the total number of accidents, and I use mutate function to add a new variable Percentage. After that, I creates a stacked bar plot with bars based on the Percentage values.
+```{r}
+age_sex_data <- merge_datasets %>%
+  group_by(age_group, SEXNAME) %>%
+  summarise(Count = n()) %>%
+  mutate(Percentage = (Count / sum(Count)) * 100)
+
+ggplot(age_sex_data, aes(x = age_group, y = Percentage, fill = SEXNAME)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Accidents by Age and Gender",
+       subtitle = paste("Total Accidents: ", total_accidents),
+       x = "Age Group",
+       y = "Percentage",
+       fill = "Gender") +
+  theme_minimal()
+```
+
+### Figure 2: Analysis
+
+As we can see from the bar chart above, of the six age groups, women between the ages of 36-45 are significantly more likely to be involved in a car accident than men. This may explain why people have such a stereotypical image. It also reflects the fact that people don't always see the whole picture.Therefore, we need to analyze the problem through the data, not make judgments about things by what is happening in front of us.
+
+# My analysis and limitations of the dataset:
+
+While this report provides an in-depth statistical analysis of our chosen dataset, there are still some important limitations to consider: 1. when looking at whether male or female drivers drive at better levels, there are actually other factors that could contribute to the results, such as say drunk driving. Whether or not men have more opportunities to drink than women or whether or not men are more likely to drink will also have a direct impact on the probability of a male driver being involved in a crash. 2.The need for driving is also different for both groups, men and women, if more women compared to men are tasked with being at home with their children on a daily basis, then women's need for driving is lower than men's, which will also affect the final results.
+
+# Conclusion to my analysis
+
+In this study, I analyzed data on the age and gender of drivers involved in car accidents. The findings reveal a heightened likelihood of car accidents among young drivers in the 15-25 age group, and male drivers demonstrating a higher propensity for accidents compared to their female counterparts.
+
+How to avoid traffic accidents as much as possible:
+
+1.  Parents of young drivers should pay attention and actively monitor their children's driving habits and consider enrolling them in professional or specialized driving classes to enhance their safety skills and awareness.
+
+2.  Both male and female drivers should remain attentive and drive with caution, especially for male drivers, avoiding the misconception that mature driving skills permit a lapse in vigilance while on the road.
+
+
+## Part IV (Sehrish) : Alcohol Use
+
+## Figure 1: Display how many crashes involving alcohol vs. not involving alcohol in the dataset
+
+Codes comments: I grouped the data by MONTH and ALCHL_IMNAME and then performed the summarize(count = n()) function which returns a summarized dataset with columns MONTH, ALCHL_IMNAME, and count representing the number of vehicle crashes for each combination of month and alcohol involvement.the grouping and summarizing steps are used to organize and aggregate your data for better visualization and analysis. NOTE: the summary table (num_crashes_alcohol) provides an overall count of crashes for each level of alcohol involvement.
+```{r}
+barGraph_alc_use <- merge_datasets %>%
+  select(ALCHL_IMNAME, MONTH) %>%
+  group_by(MONTH, ALCHL_IMNAME) %>%
+  summarize(count = n()) %>%
+  ggplot(aes(x = ALCHL_IMNAME, y = count, fill = ALCHL_IMNAME)) +
+  geom_col() +
+  labs(title = "Count of Vehicle Crashes in Regards to Alcohol Involvement",
+       x = "Alcohol Use",
+       y = "Vehicle Crash Count",
+       size = "Count",
+       fill = "Alcohol Use") +
+  theme_minimal()
+barGraph_alc_use
+
+num_crashes_alcohol <- merge_datasets %>%
+  filter(!is.na(ALCHL_IMNAME)) %>%
+  group_by(ALCHL_IMNAME) %>%
+  summarise(total_crashes = n())
+num_crashes_alcohol
+```
+
+# Figure 1. Analysis
+
+I first wanted to compare the volume of vehicle crashes due to alcohol versus crashes with no alcohol involved (I only selected the variables MONTH and ALCHL_IMANME for this reason). A bar graph was perfect for displaying this relationship. This bar graph shows that the number of vehicle crashes that did not involve the use of alcohol is greater than the number of crashes that did. Out of the 4,800 total crashes we are analyzing, only 380 of them involved the use of alcohol compared to the 4,420 that didn't. This stark difference proves that crashes while drinking while driving is not a common occurance, and therefore, the policies state and federal governments have put in place are working to deter this dangerous behaviour. However, the mere fact that hundreds of crashes involving the use of alcohol still exist is still concerning. We should continue working toward mitigating this issue to ensure the safety of our roads for everyone. The goal should be to reduce the number of vehicle crashes due to alcohol to zero.
+
+## Figure 2: Display crashes involving alcohol use vs. month to determine if the time of year affects drunk driving
+
+Codes comments: The R code creates a grouped bar graph (barGraph_alc_use_sex) to show the count of vehicle crashes based on alcohol involvement and sex. It filters out rows with missing or unknown sex information, groups the data by month, alcohol involvement, and sex, calculates crash counts, and then plots the results. Custom colors are used to differentiate between female and male involvement in the graph.
+```{r}
+custom_colors <- c(Female = "#ff69b4", Male = "#1f78b4")
+
+barGraph_alc_use_sex <- merge_datasets %>%
+  select(ALCHL_IMNAME, MONTH, SEXNAME) %>%
+  filter(!SEXNAME == "Not Reported" & !SEXNAME == "Reported as Unknown") %>%
+  group_by(MONTH, ALCHL_IMNAME, SEXNAME) %>%
+  summarize(count = n()) %>%
+  ggplot(aes(x = ALCHL_IMNAME, y = count, fill = SEXNAME)) +
+  geom_col(position = "dodge", position_fill = "dodge") +
+  scale_fill_manual(values = custom_colors) +
+  labs(title = "Count of Vehicle Crashes in Regards to Alcohol Involvement and Sex",
+       x = "Alcohol Use",
+       y = "Vehicle Crash Count",
+       fill = "Sex") +
+  theme_minimal()
+
+barGraph_alc_use_sex
+```
+
+# Figure 2. Analysis
+
+I was also curious about if the sex of the driver affects their use of alcohol while driving. Interestingly, men were more likely to get in vehicle crashes without the use of alcohol than women. However, it is important to note that when alcohol was involved in the crash, the sex of the person barely played a factor. This is proven by the minimal difference in height of the two bars for the alcohol involved column. Therefore, we can conclude that the sex of the person does not play a significant role on their likelihood of getting into a vehicle crash with the involvement of alcohol.
+
+## Figure 3: Distribution of Injury Severity when Alcohol is Involved
+
+Codes comments: This code creates a grouped bar graph (barGraph_alc_injury) to visualize the count of vehicle crashes with alcohol involvement based on different levels of injury severity. The code first transforms the injury severity categories (I renamed the bar names because they were too long in the original dataset and overlapped each other heavily when I plotted it!), filters the data for alcohol-involved crashes, groups by alcohol involvement and injury severity, calculates counts, and then plots the results. The graph displays the relationship between alcohol use and injury severity types, with dodge positioning for better clarity, and includes text labels for each bar indicating crash counts.
+```{r}
+barGraph_alc_injury <- merge_datasets %>%
+  mutate(INJ_SEVNAME = case_when(
+    INJ_SEVNAME == "Fatal Injury (K)" ~ "Fatal",
+    INJ_SEVNAME == "Injured, Severity Unknown" ~ "Injured",
+    INJ_SEVNAME == "No Apparent Injury (O)" ~ "None",
+    INJ_SEVNAME == "Possible Injury (C)" ~ "Possible Injury",
+    INJ_SEVNAME == "Suspected Minor Injury (B)" ~ "Minor",
+     INJ_SEVNAME == "Suspected Serious Injury (A)" ~ "Serious",
+     INJ_SEVNAME == "Unknown/Not Reported" ~ "Unknown",
+  )) %>%
+  filter(ALCHL_IMNAME == "Alcohol Involved") %>%
+  group_by(ALCHL_IMNAME, INJ_SEVNAME) %>%
+  filter(!is.na(ALCHL_IMNAME) & !is.na(INJ_SEVNAME)) %>%
+  summarize(count = n()) %>%
+  ggplot(aes(x = INJ_SEVNAME, y = count, fill = as.factor(INJ_SEVNAME))) +
+  geom_col(position = "dodge") +
+  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5, size = 3) +  # Add text labels
+  labs(title = "Count of Alcohol Use and Injury Severity",
+       x = "Injury Severity Type With Alcohol Involvement",
+       y = "Count of Crashes",
+       fill = "Type of Injury") +
+  theme_minimal()
+
+barGraph_alc_injury
+```
+
+# Figure 3. Analysis
+
+My research question revolves around to what extent alcohol plays a role, if any, in the number and severity of accidents on roads. Based on this bar graph, out of the 380 total vehicle crashes involving alcohol, the majority of them resulted in a non-fatal injury. In fact, 36 people suffered from a minor injury, while only 12 people suffered from a serious injury. It can be concluded that alcohol use does not have an astronomical affect on the severity of the injury. However, even though the data isn't exponential, the 125 total people who were injured in a vehicle crash still hold weight - Even if the majority of these injuries are categorized as minor, any injury resulting from impaired driving raises critical questions about road safety and the potential for more severe consequences. It's essential to consider not only the immediate impact of alcohol-related accidents but also the broader implications for public health and safety. The 380 total crashes involving alcohol highlight a persistent issue that requires attention and intervention. Road safety measures, such as stricter enforcement of alcohol-related driving laws, public awareness campaigns, and educational programs, may play a crucial role in reducing the overall number of accidents.
+
+Additionally, the focus should extend beyond the severity of injuries to other factors like property damage, emotional distress, and the strain on emergency services. Understanding the comprehensive impact of alcohol-related accidents can inform policy decisions aimed at creating safer road environments.
+
+# Limitations to my analysis and our dataset:
+
+While this report provides an in-depth statistical analysis of our chosen dataset, there are important limitations to consider. Firstly, while identifying correlations between variables (e.g., alcohol involvement and crash severity) can occur, establishing causation requires a more nuanced analysis and consideration of potential confounding factors. In addition, vehicle crash data can vary significantly based on geographical regions. Local traffic laws, enforcement, and cultural factors can influence the patterns observed. It is also important to note that our dataset was a culmination of vehicle crashes that occured in the United States. Therefore, all analyses provided relate only to the specific geographic regions that the dataset emcompasses, and cannot be used to draw conclusions about other crash data around the world.
+
+# Conclusion to my analysis
+
+In conclusion, while the data may suggest that alcohol use doesn't necessarily lead to a higher proportion of serious injuries, the overall number of crashes and resultant injuries remains a significant concern. My data and analysis provides significant insight that can inform policymakers:
+
+1.  Resource Allocation: By examining the total number of alcohol-related crashes and their outcomes, policymakers can allocate resources effectively. For instance, if the majority of incidents result in minor injuries, emphasis might be placed on allocating resources for rehabilitation and support services rather than solely focusing on emergency medical care.
+
+2.  Law Enforcement Strategies: The distribution of crash severity can guide law enforcement strategies. Since the data shows some frequency of injuries, policymakers may consider implementing or enhancing measures like sobriety checkpoints, increased patrols, or public awareness campaigns to deter impaired driving.
+
+3.  Educational Campaigns: Policymakers can use the findings to tailor educational campaigns. For instance, since the data indicates a relatively low proportion of serious injuries, the focus of campaigns might be shifted towards raising awareness about responsible drinking and the risks of impaired driving rather than solely emphasizing the severe consequences.
+
+Addressing this issue requires a multifaceted approach that considers not only the severity of injuries but also the broader societal impact of alcohol-related accidents on road safety. By using this information strategically, policymakers can contribute to creating safer road environments and reducing the overall impact of impaired driving.

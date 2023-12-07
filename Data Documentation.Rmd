@@ -1,0 +1,23 @@
+---
+title: "Data Documentation"
+author: "Sehrish Daud, Shuxin Dong, Xiangcheng Ji"
+date: "2023-12-07"
+output: html_document
+---
+
+
+It is imperative to note that our collective research endeavors are bolstered by the utilization of two comprehensive datasets, namely "accidents.csv" and "person.csv". These datasets, meticulously curated and sourced from the esteemed United States Department of Transportation, serve as invaluable repositories of authentic and reliable information, making them a cornerstone for our research initiatives. Furthermore, the user-friendly interface of the Department's website (<https://www.nhtsa.gov/file-downloads?p=nhtsa%2Fdownloads%2FCRSS%2F2021%2F>) ensures seamless accessibility, empowering our group members to navigate and extract pertinent information with utmost efficiency, thereby facilitating a rigorous and comprehensive analysis of the factors contributing to car accidents. 
+
+After using `inner_join()` function to merge two datasets of "accidents_data" and "person_data" by the key variable "MONTH", we ended up with a database specific to the factors related to car accidents that our group was going to study, and it's called "merge_datasets". We use `inner_join()` to deal with two datasets because we want to return rows in both data frames without additional NA values created by the join. In the final dataset, there are 4,800 rows which means we have 4,800 observations, and 9 columns which means 9 factors of a traffic accident.
+The relevant variables that our group wanted to study:
+
+1. "TYP_INTNAME": Location of the accident (e.g. intersection)
+2. "HOUR": Time of the accident
+3. "WEATHR_IMNAME": Weather conditions at the time of the accident (e.g Clear / Cloudy)
+4. "MAX_SEVNAME": Status of injuries (e.g Suspected Minor Injury)
+5. "ALCHL_IMNAME": Whether or not the driver was drunk (e.g No Alcohol Involved)
+6. "INJ_SEVNAME": Status of injuries (e.g No Apparent Injury)
+7. "AGE_IM": Age of drivers
+8. "SEXNAME": Sex of drivers
+
+Inside the clean dataset, there are missing values or unknown values in the relevant variables. We found that total number of missing values in the final dataset is 1160.

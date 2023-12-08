@@ -79,6 +79,8 @@ merge_datasets %>%
 
 ### How many missing values in the column "TYP_INTNAME" :
 
+Codes comments: Use `unique()` function to look what the different values are, and use `sum()` to calculate how many missing values under each column totaly.
+
 ```{r}
 unique_values_TYP_INTNAME <- unique(merge_datasets$TYP_INTNAME)
 unique_values_TYP_INTNAME
@@ -361,9 +363,9 @@ While this report provides an in-depth statistical analysis of our chosen datase
 
 In this study, I analyzed data on the age and gender of drivers involved in car accidents. The findings reveal a heightened likelihood of car accidents among young drivers in the 15-25 age group, and male drivers demonstrating a higher propensity for accidents compared to their female counterparts.
 
-How to avoid traffic accidents as much as possible:
+How to avoid traffic accidents as much as possible(future work):
 
-1.  Parents of young drivers should pay attention and actively monitor their children's driving habits and consider enrolling them in professional or specialized driving classes to enhance their safety skills and awareness.
+1.  Parents of young drivers should pay attention and actively monitor their children's driving habits and consider enrolling them in professional or specialized driving classes to enhance their safety skills and awareness. So, I want use data to analysis how many young drivers have taken specialized driving classes, and the percentage of these people are involved in car accidents compared to percentage of others.
 
 2.  Both male and female drivers should remain attentive and drive with caution, especially for male drivers, avoiding the misconception that mature driving skills permit a lapse in vigilance while on the road.
 

@@ -555,6 +555,9 @@ merge_datasets %&gt;%
 <h2>Number of missing values in each column:</h2>
 <div id="how-many-missing-values-in-the-column-typ_intname" class="section level3">
 <h3>How many missing values in the column “TYP_INTNAME” :</h3>
+<p>Codes comments: Use <code>unique()</code> function to look what the
+different values are, and use <code>sum()</code> to calculate how many
+missing values under each column totaly.</p>
 <pre class="r"><code>unique_values_TYP_INTNAME &lt;- unique(merge_datasets$TYP_INTNAME)
 unique_values_TYP_INTNAME</code></pre>
 <pre><code>## [1] &quot;Not an Intersection&quot;     &quot;T-Intersection&quot;         
@@ -896,12 +899,15 @@ involved in car accidents. The findings reveal a heightened likelihood
 of car accidents among young drivers in the 15-25 age group, and male
 drivers demonstrating a higher propensity for accidents compared to
 their female counterparts.</p>
-<p>How to avoid traffic accidents as much as possible:</p>
+<p>How to avoid traffic accidents as much as possible(future work):</p>
 <ol style="list-style-type: decimal">
 <li><p>Parents of young drivers should pay attention and actively
 monitor their children’s driving habits and consider enrolling them in
 professional or specialized driving classes to enhance their safety
-skills and awareness.</p></li>
+skills and awareness. So, I want use data to analysis how many young
+drivers have taken specialized driving classes, and the percentage of
+these people are involved in car accidents compared to percentage of
+others.</p></li>
 <li><p>Both male and female drivers should remain attentive and drive
 with caution, especially for male drivers, avoiding the misconception
 that mature driving skills permit a lapse in vigilance while on the

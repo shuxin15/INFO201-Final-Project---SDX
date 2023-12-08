@@ -483,3 +483,54 @@ In conclusion, while the data may suggest that alcohol use doesn't necessarily l
 3.  Educational Campaigns: Policymakers can use the findings to tailor educational campaigns. For instance, since the data indicates a relatively low proportion of serious injuries, the focus of campaigns might be shifted towards raising awareness about responsible drinking and the risks of impaired driving rather than solely emphasizing the severe consequences.
 
 Addressing this issue requires a multifaceted approach that considers not only the severity of injuries but also the broader societal impact of alcohol-related accidents on road safety. By using this information strategically, policymakers can contribute to creating safer road environments and reducing the overall impact of impaired driving.
+
+## Part V: Time & Weather
+
+```{r}
+merge_datasets <- merge_datasets %>% 
+  filter(HOUR < 24)
+```
+
+Codes comments: I refined the 'merge_datasets' data frame by filtering to ensure the data accuracy for analysis. I applied a filter for the 'HOUR' column to keep only records with valid time entries. Since the 'HOUR' column should represent time in a 24-hour format, any entry that equals to or exceeds 24 is likely to be an error. By filtering out these entries, I maintained the integrity of the dataset and ensure that the subsequent analysis is based on accurate and reliable time data.
+
+### Figure 1: How does the time of day relate to the frequency of traffic accidents
+
+```{r}
+merge_datasets %>% 
+  group_by(HOUR) %>% 
+  count() %>% 
+  ggplot(aes(HOUR,n)) +  
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(breaks = 0:23)
+```
+
+Codes comments: This portion of the code is used to analyze and visualize the distribution of dataset across different hours of the day. I used the group_by function to categorize the 'merge_datasets' data frame by the 'HOUR' column. After grouping the data, I used the count function to calculate the number of records for each hour, which gives a picture of data frequency at different times. Then I used ggplot to vusualize the grouped and counted data. Then I mapped 'HOUR' to the x-axis and the count 'n' to the y-axis, creating a scatter plot with geom_point. To make it more readable, I also added a line graph using geom_line, connecting the points to show the trend and continuity of the data across hours. Lastly, I adjusted the x-axis scale using scale_x_continuous, setting the breaks from 0 to 23, which corresponds to a 24-hour time format of a day. 
+
+### Figure 1: Analysis
+The first figure is a line chart, which shows the number of traffic accidents throughout the day, we see a clear trend. Accident numbers steadily climb from the early morning at 5 AM to midday around 2 PM. The peak occurs between 3 PM and 5 PM, indicating a surge during the afternoon rush hours. This likely reflects the increased traffic volume as people are heading home from work. Interestingly, the afternoon rush sees significantly more accidents compared to the morning rush, which could suggest that factors such as fatigue after a workday may contribute to the higher incidence of accidents. After 5 PM, there's a noticeable decline, suggesting a decrease in the frequency of events during the late evening hours.
+
+### Figure 2: What is the relationship between weather conditions and the frequency of traffic accidents?
+
+```{r}
+merge_datasets %>% 
+  group_by(WEATHR_IMNAME) %>% 
+  count() %>% 
+  ggplot(aes(reorder(WEATHR_IMNAME,-n),n,fill=WEATHR_IMNAME)) + 
+  geom_col() + 
+  ylim(c(0,12000)) +
+  labs(x = "", y = 'Count',title = "Number of accidents under different weather conditions ") + 
+  geom_text(aes(label = n),vjust = -0.5) + 
+  theme(legend.position = "none") + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Codes comments: This portion of codes explores the impact of weather conditions on the frequency of accidents. First, I used the group_by function to organize the data based on different weather conditions, as indicated in the 'WEATHR_IMNAME' column. After grouping, I applied the count function to get the number of accidents under each weather condition. I constructed a bar chart (column graph) using geom_col, to visualize the data with gglot, where the x-axis is weather conditions based on the count 'n' in descending order. This offers a clearer view of the conditions with the highest to lowest accident frequencies. I set the y-axis limits to a reasonable scale using ylim with capping at 12,000  and used labs to further refined labels and tittles. I added data labels onto the bars using geom_text for reference. I removed the legend with theme(legend.position = "none") to make it easier to view. Lastly, I used theme(axis.text.x = element_text(angle = 45, hjust = 1)) to rotate the x-axis to give a better visualization between bars. 
+
+### Figure 2: Analysis
+The second figure visualizes the number of traffic accidents that occurred under different weather conditions. It shows that the majority of traffic accidents occur during clear weather conditions. so it's a little reminder that no matter how perfect the weather looks, we still need to pay attention to road safety. Clear weather can sometimes give us a false sense of security, but the road always deserves our full attention.  inconclusive.
+
+# My conclusion and limitations of the dataset:
+But before we jump to conclusions, it's important to recognize that this data alone doesn't tell us the whole story. Clear weather is the most common condition for most of the time, so naturally, it might see more accidents simply due to its frequency. To really understand the impact of weather on traffic accidents, we would need more detailed data. We need to consider the proportion of time spent in each weather condition compared to the number of accidents that happen. Without this context, our analysis for the second figure remains somewhat inconclusive.
+
+In conclusion, these analyses explores the various factors that influence the risk of traffic accidents beyond the obvious. The afternoon rush hours and seemingly good weather conditions both played significant role in the frequency of road incidents. These observations are invaluable for both drivers and policymakers, serving as both an alert and guideline to better understand the road safety and mitigate potential risks. 
